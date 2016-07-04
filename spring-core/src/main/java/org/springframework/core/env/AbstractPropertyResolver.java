@@ -216,10 +216,10 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	}
 
 	private String doResolvePlaceholders(String text, PropertyPlaceholderHelper helper) {
-		return helper.replacePlaceholders(text, new PropertyPlaceholderHelper.PlaceholderResolver() {
+		return helper.replacePlaceholders(text, new PropertyPlaceholderHelper.PlaceholderResolver() {  //通过内部接口抽象解析占位参数操作，
 			@Override
 			public String resolvePlaceholder(String placeholderName) {
-				return getPropertyAsRawString(placeholderName);
+				return getPropertyAsRawString(placeholderName);  //交给解析器去完成具体操作
 			}
 		});
 	}

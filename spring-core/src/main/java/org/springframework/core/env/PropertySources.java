@@ -18,7 +18,7 @@ package org.springframework.core.env;
 
 /**
  * Holder containing one or more {@link PropertySource} objects.
- *
+ * PropertySource容器，继承Iterable可迭代
  * @author Chris Beams
  * @since 3.1
  */

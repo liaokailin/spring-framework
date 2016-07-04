@@ -512,7 +512,7 @@ public class TypeDescriptor implements Serializable {
 		if (type == null) {
 			type = Object.class;
 		}
-		TypeDescriptor desc = commonTypesCache.get(type);
+		TypeDescriptor desc = commonTypesCache.get(type);  //缓存已解析的类型描述符
 		return (desc != null ? desc : new TypeDescriptor(ResolvableType.forClass(type), null, null));
 	}
 

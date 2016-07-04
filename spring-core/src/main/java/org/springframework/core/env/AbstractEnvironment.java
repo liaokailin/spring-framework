@@ -108,7 +108,15 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 
 	private final Set<String> defaultProfiles = new LinkedHashSet<String>(getReservedDefaultProfiles());
 
-	private final MutablePropertySources propertySources = new MutablePropertySources(this.logger);
+
+	/**
+	 * 在不同方式收集信息时可类比这种设计，通过模板方式定义抽象方法(customizePropertySources)中传递信息容器(MutablePropertySources)，子类在获取到信息实体(PropertySource)是添加进容器
+	 *
+	 * 信息实体(类比PropertySource)：由于不同的信息实体有不同的表现信息，因此通过泛型来存储实体具体信息
+	 * 信息容器(MutablePropertySources)：通过List或者类似的容器(链表、map)等保存信息实体
+	 *
+	 */
+	private final MutablePropertySources propertySources = new MutablePropertySources(this.logger);  //Spring中配置信息容器
 
 	private final ConfigurablePropertyResolver propertyResolver =
 			new PropertySourcesPropertyResolver(this.propertySources);
@@ -122,7 +130,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * @see #customizePropertySources(MutablePropertySources)
 	 */
 	public AbstractEnvironment() {
-		customizePropertySources(this.propertySources);
+		customizePropertySources(this.propertySources);  // customizePropertySources该抽象方法，将容器传递到子类，自类通过自定义环境变量的加载，然后存入容器propertySources中
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(format(
 					"Initialized %s with PropertySources %s", getClass().getSimpleName(), this.propertySources));
@@ -421,7 +429,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public Map<String, Object> getSystemProperties() {
+	public Map<String, Object> getSystemProperties() {  //获取系统参数
 		try {
 			return (Map) System.getProperties();
 		}

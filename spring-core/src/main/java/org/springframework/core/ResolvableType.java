@@ -64,7 +64,7 @@ import org.springframework.util.StringUtils;
  *     t.resolveGeneric(1, 0); // String
  * }
  * </pre>
- *
+ * `ResolvableType`类包装一个java类型，可以获取该类型对应的父类，实现的接口，以及对应的泛型信息，可以做为一个强大的工具类
  * @author Phillip Webb
  * @author Juergen Hoeller
  * @author Stephane Nicoll

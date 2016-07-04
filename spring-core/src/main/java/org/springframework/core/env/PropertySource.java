@@ -47,6 +47,8 @@ import org.springframework.util.ObjectUtils;
  * annotation provides a convenient and declarative way of adding property sources to the
  * enclosing {@code Environment}.
  *
+ * 该类保存各种类型的属性类型，通过name属性确定一组值的唯一信，由于 T source为泛型，因此可以定义不同类型的属性信息，这个source中才是真正保存用户属性信息
+ *
  * @author Chris Beams
  * @since 3.1
  * @see PropertySources

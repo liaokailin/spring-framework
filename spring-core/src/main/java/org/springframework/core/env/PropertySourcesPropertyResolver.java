@@ -68,10 +68,18 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
 	@Override
 	protected String getPropertyAsRawString(String key) {
-		return getProperty(key, String.class, false);
+		return (key, String.class, false);
 	}
 
-	protected <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
+	/**
+	 * 遍历propertySources获取占位参数值
+	 * @param key 参数key
+	 * @param targetValueType  目标类型
+	 * @param resolveNestedPlaceholders  是否解析嵌套占位参数
+	 * @param <T>
+	 * @return
+	 */
+	protected <T> T getPropertygetProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
 		if (this.propertySources != null) {
 			for (PropertySource<?> propertySource : this.propertySources) {
 				if (logger.isTraceEnabled()) {
@@ -86,7 +94,7 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 						logger.debug(String.format("Found key '%s' in [%s] with type [%s] and value '%s'",
 								key, propertySource.getName(), value.getClass().getSimpleName(), value));
 					}
-					return this.conversionService.convert(value, targetValueType);
+					return this.conversionService.convert(value, targetValueType); //类型转换
 				}
 			}
 		}

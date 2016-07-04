@@ -178,7 +178,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/** System time in milliseconds when this context started */
 	private long startupDate;
 
-	/** Flag that indicates whether this context is currently active */
+	/** Flag that indicates whether this context is currently active 判断上下文是否启动，如果没有，调用refresh进行启动*/
 	private final AtomicBoolean active = new AtomicBoolean();
 
 	/** Flag that indicates whether this context has been closed already */
@@ -211,6 +211,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/**
 	 * Create a new AbstractApplicationContext with no parent.
+	 * 在调用子类构造方法时，会调用该方法
 	 */
 	public AbstractApplicationContext() {
 		this.resourcePatternResolver = getResourcePatternResolver();
@@ -434,7 +435,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see org.springframework.core.io.support.PathMatchingResourcePatternResolver
 	 */
 	protected ResourcePatternResolver getResourcePatternResolver() {
-		return new PathMatchingResourcePatternResolver(this);
+		return new PathMatchingResourcePatternResolver(this);  //该context继承了DefaultResourceLoader，因此直接传递this即可
 	}
 
 
@@ -500,12 +501,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * a custom {@link ConfigurableEnvironment} implementation.
 	 */
 	protected ConfigurableEnvironment createEnvironment() {
-		return new StandardEnvironment();
+		return new StandardEnvironment();  //创建执行环境，注意会调用父类的构造方法
 	}
 
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
-		synchronized (this.startupShutdownMonitor) {
+		synchronized (this.startupShutdownMonitor) {  //同步锁
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
@@ -575,7 +576,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	protected void prepareRefresh() {
 		this.startupDate = System.currentTimeMillis();
 		this.closed.set(false);
-		this.active.set(true);
+		this.active.set(true); //表示context被激活
 
 		if (logger.isInfoEnabled()) {
 			logger.info("Refreshing " + this);

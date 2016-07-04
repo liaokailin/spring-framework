@@ -77,7 +77,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
 			Assert.noNullElements(locations, "Config locations must not be null");
 			this.configLocations = new String[locations.length];
 			for (int i = 0; i < locations.length; i++) {
-				this.configLocations[i] = resolvePath(locations[i]).trim();
+				this.configLocations[i] = resolvePath(locations[i]).trim();  //解决配置文件路径，支持${}等配置形式的解析，通过环境变量去覆盖占位符
 			}
 		}
 		else {
@@ -119,7 +119,8 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
 	 * @see org.springframework.core.env.Environment#resolveRequiredPlaceholders(String)
 	 */
 	protected String resolvePath(String path) {
-		return getEnvironment().resolveRequiredPlaceholders(path);
+		//getEnvironment()获得ConfigurableEnvironment，第一次调用时 该getEnvironment()返回StandardEnvironment，StandardEnvironment继承AbstractEnvironment(实现了接口ConfigurableEnvironment)
+		return getEnvironment().resolveRequiredPlaceholders(path);  //调用AbstractEnvironment#resolveRequiredPlaceholders()方法
 	}
 
 

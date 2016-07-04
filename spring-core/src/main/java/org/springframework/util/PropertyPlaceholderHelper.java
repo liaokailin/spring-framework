@@ -83,17 +83,17 @@ public class PropertyPlaceholderHelper {
 
 		Assert.notNull(placeholderPrefix, "'placeholderPrefix' must not be null");
 		Assert.notNull(placeholderSuffix, "'placeholderSuffix' must not be null");
-		this.placeholderPrefix = placeholderPrefix;
-		this.placeholderSuffix = placeholderSuffix;
-		String simplePrefixForSuffix = wellKnownSimplePrefixes.get(this.placeholderSuffix);
+		this.placeholderPrefix = placeholderPrefix;  //${
+		this.placeholderSuffix = placeholderSuffix;  // }
+		String simplePrefixForSuffix = wellKnownSimplePrefixes.get(this.placeholderSuffix);  // {
 		if (simplePrefixForSuffix != null && this.placeholderPrefix.endsWith(simplePrefixForSuffix)) {
-			this.simplePrefix = simplePrefixForSuffix;
+			this.simplePrefix = simplePrefixForSuffix;  //执行该分支
 		}
 		else {
 			this.simplePrefix = this.placeholderPrefix;
 		}
-		this.valueSeparator = valueSeparator;
-		this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;
+		this.valueSeparator = valueSeparator;  // :  冒号后面为默认值
+		this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders; // false 不忽略为解析的占位参数
 	}
 
 
@@ -129,22 +129,22 @@ public class PropertyPlaceholderHelper {
 	protected String parseStringValue(
 			String strVal, PlaceholderResolver placeholderResolver, Set<String> visitedPlaceholders) {
 
-		StringBuilder result = new StringBuilder(strVal);
+		StringBuilder result = new StringBuilder(strVal);  // 以 "file:${${prefix}Path}/test.xml"为例子
 
-		int startIndex = strVal.indexOf(this.placeholderPrefix);
+		int startIndex = strVal.indexOf(this.placeholderPrefix); //第一个前缀 5
 		while (startIndex != -1) {
-			int endIndex = findPlaceholderEndIndex(result, startIndex);
+			int endIndex = findPlaceholderEndIndex(result, startIndex);  // 前缀匹配的后缀，注意内部可能嵌套占位参数
 			if (endIndex != -1) {
-				String placeholder = result.substring(startIndex + this.placeholderPrefix.length(), endIndex);
+				String placeholder = result.substring(startIndex + this.placeholderPrefix.length(), endIndex);  //截取占位参数 “${prefix}Path“
 				String originalPlaceholder = placeholder;
-				if (!visitedPlaceholders.add(originalPlaceholder)) {
+				if (!visitedPlaceholders.add(originalPlaceholder)) {  //将解析出的占位参数加入集合
 					throw new IllegalArgumentException(
 							"Circular placeholder reference '" + originalPlaceholder + "' in property definitions");
 				}
 				// Recursive invocation, parsing placeholders contained in the placeholder key.
-				placeholder = parseStringValue(placeholder, placeholderResolver, visitedPlaceholders);
+				placeholder = parseStringValue(placeholder, placeholderResolver, visitedPlaceholders);  //递归调用内部嵌套占位参数 prefix
 				// Now obtain the value for the fully resolved key...
-				String propVal = placeholderResolver.resolvePlaceholder(placeholder);
+				String propVal = placeholderResolver.resolvePlaceholder(placeholder);  //PropertySourcesPropertyResolver#getPropertyAsRawString() 获得值
 				if (propVal == null && this.valueSeparator != null) {
 					int separatorIndex = placeholder.indexOf(this.valueSeparator);
 					if (separatorIndex != -1) {
@@ -160,7 +160,7 @@ public class PropertyPlaceholderHelper {
 					// Recursive invocation, parsing placeholders contained in the
 					// previously resolved placeholder value.
 					propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
-					result.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);
+					result.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);  //替换占位参数值
 					if (logger.isTraceEnabled()) {
 						logger.trace("Resolved placeholder '" + placeholder + "'");
 					}
@@ -184,25 +184,28 @@ public class PropertyPlaceholderHelper {
 		return result.toString();
 	}
 
+	/**
+	 * 获取最外层占位参数的结束位置
+	 */
 	private int findPlaceholderEndIndex(CharSequence buf, int startIndex) {
-		int index = startIndex + this.placeholderPrefix.length();
+		int index = startIndex + this.placeholderPrefix.length();  // 7  "file:${${prefix}Path}/test.xml"
 		int withinNestedPlaceholder = 0;
 		while (index < buf.length()) {
-			if (StringUtils.substringMatch(buf, index, this.placeholderSuffix)) {
-				if (withinNestedPlaceholder > 0) {
-					withinNestedPlaceholder--;
+			if (StringUtils.substringMatch(buf, index, this.placeholderSuffix)) {  //从${prefix}Path}/test.xml找 "}"  不匹配
+				if (withinNestedPlaceholder > 0) { //如果withinNestedPlaceholder>0则表示前面以及匹配到如果withinNestedPlaceholder个"{",
+					withinNestedPlaceholder--;   //执行递减操作，直到为0时 则获取最外层占位参数的结束位置
 					index = index + this.placeholderSuffix.length();
 				}
 				else {
 					return index;
 				}
 			}
-			else if (StringUtils.substringMatch(buf, index, this.simplePrefix)) {
-				withinNestedPlaceholder++;
-				index = index + this.simplePrefix.length();
+			else if (StringUtils.substringMatch(buf, index, this.simplePrefix)) { //从${prefix}Path}/test.xml找 "{"  不匹配
+				withinNestedPlaceholder++;  //如果匹配到 则说明内嵌套占位参数
+				index = index + this.simplePrefix.length(); //index跳过占位参数开始符号长度继续匹配
 			}
 			else {
-				index++;
+				index++;  //无法匹配 "{" "}" 则index++
 			}
 		}
 		return -1;

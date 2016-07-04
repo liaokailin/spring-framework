@@ -46,6 +46,8 @@ import org.springframework.core.io.Resource;
  * with an {@link org.springframework.beans.factory.xml.XmlBeanDefinitionReader}
  * for more flexible context setup.</b>
  *
+ * 用指定的配置文件来加载bean,eg
+ * ApplicationContext context = new FileSystemXmlApplicationContext("file:/Users/liaokailin/git/test.xml");
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see #getResource
@@ -134,7 +136,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 	public FileSystemXmlApplicationContext(String[] configLocations, boolean refresh, ApplicationContext parent)
 			throws BeansException {
 
-		super(parent);
+		super(parent);  //null 双亲parent可以类比ClassLoad的双亲委派模型，防止加载重复数据
 		setConfigLocations(configLocations);
 		if (refresh) {
 			refresh();
