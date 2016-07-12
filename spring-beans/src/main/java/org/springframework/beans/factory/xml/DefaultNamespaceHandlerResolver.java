@@ -108,6 +108,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	 * from the configured mappings.
 	 * @param namespaceUri the relevant namespace URI
 	 * @return the located {@link NamespaceHandler}, or {@code null} if none found
+	 * 解析META-INF/spring.handlers文件获得NamespaceHandler对应信息
 	 */
 	@Override
 	public NamespaceHandler resolve(String namespaceUri) {

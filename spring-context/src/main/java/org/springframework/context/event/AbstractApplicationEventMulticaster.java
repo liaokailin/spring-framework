@@ -150,6 +150,8 @@ public abstract class AbstractApplicationEventMulticaster
 	}
 
 	/**
+	 *
+	 * 获取指定事件对应的监听器
 	 * Return a Collection of ApplicationListeners matching the given
 	 * event type. Non-matching listeners get excluded early.
 	 * @param event the event to be propagated. Allows for excluding
@@ -166,7 +168,7 @@ public abstract class AbstractApplicationEventMulticaster
 		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
 
 		// Quick check for existing entry on ConcurrentHashMap...
-		ListenerRetriever retriever = this.retrieverCache.get(cacheKey);
+		ListenerRetriever retriever = this.retrieverCache.get(cacheKey);  //缓存
 		if (retriever != null) {
 			return retriever.getApplicationListeners();
 		}
@@ -226,7 +228,7 @@ public abstract class AbstractApplicationEventMulticaster
 					if (listenerType == null || supportsEvent(listenerType, eventType)) {
 						ApplicationListener<?> listener =
 								beanFactory.getBean(listenerBeanName, ApplicationListener.class);
-						if (!allListeners.contains(listener) && supportsEvent(listener, eventType, sourceType)) {
+						if (!allListeners.contains(listener) && supportsEvent(listener, eventType, sourceType)) {  // 关键 ： supportsEvent 判断是否支持该事件
 							if (retriever != null) {
 								retriever.applicationListenerBeans.add(listenerBeanName);
 							}

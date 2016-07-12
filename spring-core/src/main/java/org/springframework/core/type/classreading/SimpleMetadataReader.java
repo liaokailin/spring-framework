@@ -50,7 +50,7 @@ final class SimpleMetadataReader implements MetadataReader {
 		InputStream is = new BufferedInputStream(resource.getInputStream());
 		ClassReader classReader;
 		try {
-			classReader = new ClassReader(is);
+			classReader = new ClassReader(is);  //使用asm处理扫描的Class文件
 		}
 		catch (IllegalArgumentException ex) {
 			throw new NestedIOException("ASM ClassReader failed to parse class file - " +

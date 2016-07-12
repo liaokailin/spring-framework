@@ -133,7 +133,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 			try {
 				// Try to parse the location as a URL...
 				URL url = new URL(location);
-				return new UrlResource(url);
+				return new UrlResource(url);  //构建UrlResource
 			}
 			catch (MalformedURLException ex) {
 				// No URL -> resolve as resource path.

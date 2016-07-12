@@ -436,7 +436,7 @@ public class BeanDefinitionParserDelegate {
 	 */
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, BeanDefinition containingBean) {
 		String id = ele.getAttribute(ID_ATTRIBUTE);
-		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
+		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);  //name属性来定义别名
 
 		List<String> aliases = new ArrayList<String>();
 		if (StringUtils.hasLength(nameAttr)) {
@@ -446,7 +446,7 @@ public class BeanDefinitionParserDelegate {
 
 		String beanName = id;
 		if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
-			beanName = aliases.remove(0);
+			beanName = aliases.remove(0);  //在不指定ID时 则默认取name值中的第一个作为bean id
 			if (logger.isDebugEnabled()) {
 				logger.debug("No XML 'id' specified - using '" + beanName +
 						"' as bean name and " + aliases + " as aliases");
@@ -454,7 +454,7 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		if (containingBean == null) {
-			checkNameUniqueness(beanName, aliases, ele);
+			checkNameUniqueness(beanName, aliases, ele); //校验bean id 以及别名是否被使用过
 		}
 
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
@@ -521,7 +521,9 @@ public class BeanDefinitionParserDelegate {
 	 */
 	public AbstractBeanDefinition parseBeanDefinitionElement(
 			Element ele, String beanName, BeanDefinition containingBean) {
-
+		/**
+		 * parseState为一个栈结构，后进先出，记录解析xml位置，出错时，肯通过该栈信息定位出错位置，并抛出异常 （该异常输出方式可在实际项目层次比较深时模仿使用）
+		 */
 		this.parseState.push(new BeanEntry(beanName));
 
 		String className = null;
@@ -534,9 +536,9 @@ public class BeanDefinitionParserDelegate {
 			if (ele.hasAttribute(PARENT_ATTRIBUTE)) {
 				parent = ele.getAttribute(PARENT_ATTRIBUTE);
 			}
-			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
+			AbstractBeanDefinition bd = createBeanDefinition(className, parent);  //指定class以及parent
 
-			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
+			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);  //解析其他bean属性
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 
 			parseMetaElements(ele, bd);
@@ -578,7 +580,7 @@ public class BeanDefinitionParserDelegate {
 	public AbstractBeanDefinition parseBeanDefinitionAttributes(Element ele, String beanName,
 			BeanDefinition containingBean, AbstractBeanDefinition bd) {
 
-		if (ele.hasAttribute(SINGLETON_ATTRIBUTE)) {
+		if (ele.hasAttribute(SINGLETON_ATTRIBUTE)) {  //singleton属性已过期，要采用scope
 			error("Old 1.x 'singleton' attribute in use - upgrade to 'scope' declaration", ele);
 		}
 		else if (ele.hasAttribute(SCOPE_ATTRIBUTE)) {
@@ -600,7 +602,7 @@ public class BeanDefinitionParserDelegate {
 		bd.setLazyInit(TRUE_VALUE.equals(lazyInit));
 
 		String autowire = ele.getAttribute(AUTOWIRE_ATTRIBUTE);
-		bd.setAutowireMode(getAutowireMode(autowire));
+		bd.setAutowireMode(getAutowireMode(autowire)); //autowire的方式
 
 		String dependencyCheck = ele.getAttribute(DEPENDENCY_CHECK_ATTRIBUTE);
 		bd.setDependencyCheck(getDependencyCheck(dependencyCheck));
@@ -739,7 +741,7 @@ public class BeanDefinitionParserDelegate {
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (isCandidateElement(node) && nodeNameEquals(node, CONSTRUCTOR_ARG_ELEMENT)) {
-				parseConstructorArgElement((Element) node, bd);
+				parseConstructorArgElement((Element) node, bd);  //构造方法参数
 			}
 		}
 	}
@@ -844,7 +846,7 @@ public class BeanDefinitionParserDelegate {
 							error("Ambiguous constructor-arg entries for index " + index, ele);
 						}
 						else {
-							bd.getConstructorArgumentValues().addIndexedArgumentValue(index, valueHolder);
+							bd.getConstructorArgumentValues().addIndexedArgumentValue(index, valueHolder);  //通过该方式设置beanDefinition的构造方法参数，可以便捷使用BeanDefinitionBuilder
 						}
 					}
 					finally {
@@ -895,7 +897,7 @@ public class BeanDefinitionParserDelegate {
 			PropertyValue pv = new PropertyValue(propertyName, val);
 			parseMetaElements(ele, pv);
 			pv.setSource(extractSource(ele));
-			bd.getPropertyValues().addPropertyValue(pv);
+			bd.getPropertyValues().addPropertyValue(pv);  //设置属性值，工具类： BeanDefinitionBuilder
 		}
 		finally {
 			this.parseState.pop();
@@ -1018,7 +1020,7 @@ public class BeanDefinitionParserDelegate {
 			return parseNestedCustomElement(ele, bd);
 		}
 		else if (nodeNameEquals(ele, BEAN_ELEMENT)) {
-			BeanDefinitionHolder nestedBd = parseBeanDefinitionElement(ele, bd);
+			BeanDefinitionHolder nestedBd = parseBeanDefinitionElement(ele, bd);  //通过解析xml获得BeanDefinitionHolder
 			if (nestedBd != null) {
 				nestedBd = decorateBeanDefinitionIfRequired(ele, nestedBd, bd);
 			}
@@ -1403,6 +1405,10 @@ public class BeanDefinitionParserDelegate {
 
 	public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingBd) {
 		String namespaceUri = getNamespaceURI(ele);
+		/**
+		 * 注意： 这里解析所有jar下的META-INF/spring.handlers 拿到NamespaceHandler并调用其init方法 例如 {@link ContextNamespaceHandler}
+		 *
+		 */
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
@@ -1438,6 +1444,16 @@ public class BeanDefinitionParserDelegate {
 		return finalDefinition;
 	}
 
+	/**
+	 * 处理c p 之类的标签
+	 * http://www.springframework.org/schema/c=org.springframework.beans.factory.xml.SimpleConstructorNamespaceHandler
+	 * http://www.springframework.org/schema/p=org.springframework.beans.factory.xml.SimplePropertyNamespaceHandler
+	 * http://www.springframework.org/schema/util=org.springframework.beans.factory.xml.UtilNamespaceHandler
+	 * @param node
+	 * @param originalDef
+	 * @param containingBd
+	 * @return
+	 */
 	public BeanDefinitionHolder decorateIfRequired(
 			Node node, BeanDefinitionHolder originalDef, BeanDefinition containingBd) {
 
@@ -1483,7 +1499,7 @@ public class BeanDefinitionParserDelegate {
 	 * @param node the node
 	 */
 	public String getNamespaceURI(Node node) {
-		return node.getNamespaceURI();
+		return node.getNamespaceURI();  //得到xml中schema信息，如： http://www.springframework.org/schema/beans
 	}
 
 	/**
@@ -1512,6 +1528,11 @@ public class BeanDefinitionParserDelegate {
 		return (!StringUtils.hasLength(namespaceUri) || BEANS_NAMESPACE_URI.equals(namespaceUri));
 	}
 
+	/**
+	 *判断是否为默认命名空间beans
+	 * @param node
+	 * @return
+	 */
 	public boolean isDefaultNamespace(Node node) {
 		return isDefaultNamespace(getNamespaceURI(node));
 	}

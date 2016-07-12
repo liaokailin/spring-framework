@@ -29,6 +29,7 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
  * @author Juergen Hoeller
  * @since 3.0.1
  * @see org.springframework.context.annotation.ConfigurationClassPostProcessor
+ * 用来处理 BeanDefinition注册的后处理器，AnnotationApplicationContext就是利用该类的子类ConfigurationClassPostProcessor来实现BeanDefinition的加载
  */
 public interface BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProcessor {
 

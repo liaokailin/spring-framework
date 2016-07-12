@@ -68,7 +68,7 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
 	@Override
 	protected String getPropertyAsRawString(String key) {
-		return (key, String.class, false);
+		return getPropertygetProperty(key, String.class, false);
 	}
 
 	/**

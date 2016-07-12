@@ -74,7 +74,7 @@ public class SimplePropertyNamespaceHandler implements NamespaceHandler {
 				parserContext.getReaderContext().error("Property '" + propertyName + "' is already defined using " +
 						"both <property> and inline syntax. Only one approach may be used per property.", attr);
 			}
-			if (propertyName.endsWith(REF_SUFFIX)) {
+			if (propertyName.endsWith(REF_SUFFIX)) {  // -ref引用其他的bean -ref前面为引用bean的名称
 				propertyName = propertyName.substring(0, propertyName.length() - REF_SUFFIX.length());
 				pvs.add(Conventions.attributeNameToPropertyName(propertyName), new RuntimeBeanReference(propertyValue));
 			}

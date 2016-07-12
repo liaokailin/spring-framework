@@ -127,7 +127,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 			Object object = doGetObjectFromFactoryBean(factory, beanName);
 			if (object != null && shouldPostProcess) {
 				try {
-					object = postProcessObjectFromFactoryBean(object, beanName);
+					object = (object, beanName);
 				}
 				catch (Throwable ex) {
 					throw new BeanCreationException(beanName, "Post-processing of FactoryBean's object failed", ex);
@@ -151,6 +151,10 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 		Object object;
 		try {
 			if (System.getSecurityManager() != null) {
+				/**
+				 * java安全策略，防止无权限调用其他Class方法，直接启用特权访问，越过权限校验。
+				 * 不抛出异常的使用：PrivilegedAction
+				 */
 				AccessControlContext acc = getAccessControlContext();
 				try {
 					object = AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
@@ -165,7 +169,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 				}
 			}
 			else {
-				object = factory.getObject();
+				object = factory.getObject();  //获取FactoryBean中的getObject，得到一个bean
 			}
 		}
 		catch (FactoryBeanNotInitializedException ex) {
@@ -194,7 +198,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 	 * @return the object to expose
 	 * @throws org.springframework.beans.BeansException if any post-processing failed
 	 */
-	protected Object postProcessObjectFromFactoryBean(Object object, String beanName) throws BeansException {
+	protected Object postProcessObjectFromFactoryBeanpostProcessObjectFromFactoryBean(Object object, String beanName) throws BeansException {
 		return object;
 	}
 

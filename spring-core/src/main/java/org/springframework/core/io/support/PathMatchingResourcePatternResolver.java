@@ -269,6 +269,13 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 		return getResourceLoader().getResource(location);
 	}
 
+
+	/**
+	 * Spring对XxxResourceReader的加载Resource,内部通过Resolver定位Resource
+	 * @param locationPattern the location pattern to resolve
+	 * @return
+	 * @throws IOException
+	 */
 	@Override
 	public Resource[] getResources(String locationPattern) throws IOException {
 		Assert.notNull(locationPattern, "Location pattern must not be null");
@@ -287,13 +294,16 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 			// Only look for a pattern after a prefix here
 			// (to not get fooled by a pattern symbol in a strange prefix).
 			int prefixEnd = locationPattern.indexOf(":") + 1;
-			if (getPathMatcher().isPattern(locationPattern.substring(prefixEnd))) {
+			if (getPathMatcher().isPattern(locationPattern.substring(prefixEnd))) { //getPathMatcher() 得到ant匹配规则，可以模糊匹配
 				// a file pattern
 				return findPathMatchingResources(locationPattern);
 			}
 			else {
 				// a single resource with the given name
-				return new Resource[] {getResourceLoader().getResource(locationPattern)};
+				/**
+				 * 文件路径进入该分支  ，getResourceLoader() 为 new PathMatchingResourcePatternResolver(this)得到this.resourceLoader = new DefaultResourceLoader(classLoader);
+				 */
+				return new Resource[] {getResourceLoader().getResource(locationPattern)};  //  FileSystemXmlApplication返回UrlResource
 			}
 		}
 	}

@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  *
  * <p>Provides common properties like the bean factory to work on
  * and the class loader to use for loading bean classes.
- *
+ * bean定义读取器需要拥有bean定义注册器，资源加载器等核心属性
  * @author Juergen Hoeller
  * @author Chris Beams
  * @since 11.12.2003
@@ -86,7 +86,7 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 			this.resourceLoader = (ResourceLoader) this.registry;
 		}
 		else {
-			this.resourceLoader = new PathMatchingResourcePatternResolver();
+			this.resourceLoader = new PathMatchingResourcePatternResolver();  //执行该分支，DefaultListableBeanFactory 不是ResourceLoader子类
 		}
 
 		// Inherit Environment if possible
@@ -94,7 +94,7 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 			this.environment = ((EnvironmentCapable) this.registry).getEnvironment();
 		}
 		else {
-			this.environment = new StandardEnvironment();
+			this.environment = new StandardEnvironment();  //执行该分支，DefaultListableBeanFactory不是EnvironmentCapable子类
 		}
 	}
 
@@ -173,6 +173,12 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 	}
 
 
+	/**
+	 * 通过Resource获取BeanDefinitions
+	 * @param resources the resource descriptors
+	 * @return
+	 * @throws BeanDefinitionStoreException
+	 */
 	@Override
 	public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
 		Assert.notNull(resources, "Resource array must not be null");
@@ -204,16 +210,16 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
 	public int loadBeanDefinitions(String location, Set<Resource> actualResources) throws BeanDefinitionStoreException {
-		ResourceLoader resourceLoader = getResourceLoader();
+		ResourceLoader resourceLoader = getResourceLoader();  //通过前面设置的 beanDefinitionReader.setResourceLoader(this);得到XxxContext
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
 					"Cannot import bean definitions from location [" + location + "]: no ResourceLoader available");
 		}
 
-		if (resourceLoader instanceof ResourcePatternResolver) {
+		if (resourceLoader instanceof ResourcePatternResolver) {  // XxxContext都是ResourcePatternResolver子类（ApplicationContext是其子类）
 			// Resource pattern matching available.
 			try {
-				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
+				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);  //通过Resolver定位Resource位置信息构建得到Resource
 				int loadCount = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					for (Resource resource : resources) {
