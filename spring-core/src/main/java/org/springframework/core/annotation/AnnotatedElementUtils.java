@@ -574,6 +574,8 @@ public class AnnotatedElementUtils {
 	 * {@code AnnotationAttributes} maps or to preserve them as Annotation instances
 	 * @return a {@link MultiValueMap} keyed by attribute name, containing the annotation
 	 * attributes from all annotations found, or {@code null} if not found
+	 *
+	 * AnnotatedElement 接受任意Class
 	 */
 	public static MultiValueMap<String, Object> getAllAnnotationAttributes(AnnotatedElement element,
 			String annotationName, final boolean classValuesAsString, final boolean nestedAnnotationsAsMap) {

@@ -87,6 +87,6 @@ public @interface Scope {
 	 * <p>Analogous to {@code <aop:scoped-proxy/>} support in Spring XML.
 	 * @see ScopedProxyMode
 	 */
-	ScopedProxyMode proxyMode() default ScopedProxyMode.DEFAULT;
+	ScopedProxyMode proxyMode() default ScopedProxyMode.DEFAULT;  //代理模式，使用jdk动态代理，还是cglib搭理
 
 }

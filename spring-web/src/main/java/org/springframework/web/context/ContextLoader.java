@@ -323,7 +323,7 @@ public class ContextLoader {
 						ApplicationContext parent = loadParentContext(servletContext);
 						cwac.setParent(parent);
 					}
-					configureAndRefreshWebApplicationContext(cwac, servletContext);
+					configureAndRefreshWebApplicationContext(cwac, servletContext); //调用refresh
 				}
 			}
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
@@ -427,7 +427,7 @@ public class ContextLoader {
 		}
 
 		wac.setServletContext(sc);
-		String configLocationParam = sc.getInitParameter(CONFIG_LOCATION_PARAM);
+		String configLocationParam = sc.getInitParameter(CONFIG_LOCATION_PARAM);  //指定配置文件位置
 		if (configLocationParam != null) {
 			wac.setConfigLocation(configLocationParam);
 		}

@@ -29,6 +29,8 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
+ *
+ * 声明式事物处理
  * Proxy factory bean for simplified declarative transaction handling.
  * This is a convenient alternative to a standard AOP
  * {@link org.springframework.aop.framework.ProxyFactoryBean}
@@ -115,12 +117,14 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBean
 		implements BeanFactoryAware {
 
-	private final TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
+	private final TransactionInterceptor transactionInterceptor = new TransactionInterceptor();  //该拦截器中完成事物的处理
 
 	private Pointcut pointcut;
 
 
 	/**
+     *
+     * PlatformTransactionManager事物管理进程抽象，通过依赖注入进来
 	 * Set the default transaction manager. This will perform actual
 	 * transaction management: This class is just a way of invoking it.
 	 * @see TransactionInterceptor#setTransactionManager
@@ -130,6 +134,8 @@ public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBe
 	}
 
 	/**
+     *
+     * 设置事物属性，隔离级别 传播行为等
 	 * Set properties with method names as keys and transaction attribute
 	 * descriptors (parsed via TransactionAttributeEditor) as values:
 	 * e.g. key = "myMethod", value = "PROPAGATION_REQUIRED,readOnly".

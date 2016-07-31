@@ -24,6 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
+ *
+ * 数据源操作相关
  * Base class for {@link org.springframework.jdbc.core.JdbcTemplate} and
  * other JDBC-accessing DAO helpers, defining common properties such as
  * DataSource and exception translator.

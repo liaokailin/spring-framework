@@ -130,6 +130,9 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 	}
 
 
+	/**
+	 * 启动时调用,完成事物aop配置
+	 */
 	@Override
 	public void afterPropertiesSet() {
 		if (this.target == null) {
@@ -142,7 +145,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 			this.proxyClassLoader = ClassUtils.getDefaultClassLoader();
 		}
 
-		ProxyFactory proxyFactory = new ProxyFactory();
+		ProxyFactory proxyFactory = new ProxyFactory();  // AOP 代理工厂
 
 		if (this.preInterceptors != null) {
 			for (Object interceptor : this.preInterceptors) {
@@ -151,7 +154,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 		}
 
 		// Add the main interceptor (typically an Advisor).
-		proxyFactory.addAdvisor(this.advisorAdapterRegistry.wrap(createMainInterceptor()));
+		proxyFactory.addAdvisor(this.advisorAdapterRegistry.wrap(createMainInterceptor()));  //createMainInterceptor  将transactionInterceptor设置给TransactionAttributeSourceAdvisor设置给
 
 		if (this.postInterceptors != null) {
 			for (Object interceptor : this.postInterceptors) {
@@ -175,7 +178,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 
 		postProcessProxyFactory(proxyFactory);
 
-		this.proxy = proxyFactory.getProxy(this.proxyClassLoader);
+		this.proxy = proxyFactory.getProxy(this.proxyClassLoader);  //生成代理类
 	}
 
 	/**

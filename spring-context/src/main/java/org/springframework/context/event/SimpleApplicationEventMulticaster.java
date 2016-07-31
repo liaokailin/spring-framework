@@ -125,12 +125,17 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		multicastEvent(event, resolveDefaultEventType(event));
 	}
 
+	/**
+	 * 广播事件，首先获取指定类型的事件监听(这是核心)，然后执行其监听方法
+	 * @param event
+	 * @param eventType
+	 */
 	@Override
 	public void multicastEvent(final ApplicationEvent event, ResolvableType eventType) {
 		ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));
 		for (final ApplicationListener<?> listener : getApplicationListeners(event, type)) {
 			Executor executor = getTaskExecutor();
-			if (executor != null) {
+			if (executor != null) { //默认情况下为空
 				executor.execute(new Runnable() {
 					@Override
 					public void run() {
@@ -161,7 +166,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	protected void invokeListener(ApplicationListener listener, ApplicationEvent event) {
-		ErrorHandler errorHandler = getErrorHandler();
+		ErrorHandler errorHandler = getErrorHandler();//错误处理
 		if (errorHandler != null) {
 			try {
 				listener.onApplicationEvent(event);

@@ -47,6 +47,7 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 	public GenericApplicationListenerAdapter(ApplicationListener<?> delegate) {
 		Assert.notNull(delegate, "Delegate listener must not be null");
 		this.delegate = (ApplicationListener<ApplicationEvent>) delegate;
+		//解析监听器申明的事件类型
 		this.declaredEventType = resolveDeclaredEventType(this.delegate);
 	}
 
@@ -60,14 +61,19 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 	@SuppressWarnings("unchecked")
 	public boolean supportsEventType(ResolvableType eventType) {
 		if (this.delegate instanceof SmartApplicationListener) {
-			Class<? extends ApplicationEvent> eventClass = (Class<? extends ApplicationEvent>) eventType.getRawClass();
+			Class<? extends ApplicationEvent> eventClass = (Class<? extends ApplicationEvent>) eventType.getRawClass(); //获取时间类型Class
 			return ((SmartApplicationListener) this.delegate).supportsEventType(eventClass);  //关键 supportsEventType
 		}
 		else {
-			return (this.declaredEventType == null || this.declaredEventType.isAssignableFrom(eventType));
+			return (this.declaredEventType == null || this.declaredEventType.isAssignableFrom(eventType));  //执行该步骤，匹配泛型中的事件类型
 		}
 	}
 
+	/**
+	 * 判断是否支持指定的事件
+	 * @param eventType
+	 * @return
+	 */
 	@Override
 	public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
 		return supportsEventType(ResolvableType.forType(eventType));
@@ -89,18 +95,23 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 	}
 
 
+    /**
+     * GenericTypeResolver#resolveTypeArgument实现类似功能，在低版本的Spring boot中用的是该方法
+     * @param listenerType
+     * @return
+     */
 	static ResolvableType resolveDeclaredEventType(Class<?> listenerType) {
 		ResolvableType resolvableType = ResolvableType.forClass(listenerType).as(ApplicationListener.class);
 		if (resolvableType == null || !resolvableType.hasGenerics()) {
 			return null;
 		}
-		return resolvableType.getGeneric();
+		return resolvableType.getGeneric();//获取泛型类型，不传递参数，默认获取第一个 ，例如 ApplicationListener<ApplicationStartedEvent>  则获取到ApplicationStartedEvent
 	}
 
 	private static ResolvableType resolveDeclaredEventType(ApplicationListener<ApplicationEvent> listener) {
 		ResolvableType declaredEventType = resolveDeclaredEventType(listener.getClass());
 		if (declaredEventType == null || declaredEventType.isAssignableFrom(
-				ResolvableType.forClass(ApplicationEvent.class))) {
+				ResolvableType.forClass(ApplicationEvent.class))) {  //执行步骤二，为ApplicationEvent子类
 
 			Class<?> targetClass = AopUtils.getTargetClass(listener);
 			if (targetClass != listener.getClass()) {

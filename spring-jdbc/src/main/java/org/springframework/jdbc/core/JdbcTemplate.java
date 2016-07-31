@@ -391,7 +391,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 	public <T> T execute(StatementCallback<T> action) throws DataAccessException {
 		Assert.notNull(action, "Callback object must not be null");
 
-		Connection con = DataSourceUtils.getConnection(getDataSource());
+		Connection con = DataSourceUtils.getConnection(getDataSource());  //获取数据库链接，存储在threadLocal中
 		Statement stmt = null;
 		try {
 			Connection conToUse = con;
@@ -424,6 +424,11 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 		}
 	}
 
+	/**
+	 * 执行指定sql
+	 * @param sql
+	 * @throws DataAccessException
+	 */
 	@Override
 	public void execute(final String sql) throws DataAccessException {
 		if (logger.isDebugEnabled()) {

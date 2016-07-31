@@ -164,9 +164,9 @@ class CglibAopProxy implements AopProxy, Serializable {
 			Assert.state(rootClass != null, "Target class must be available for creating a CGLIB proxy");
 
 			Class<?> proxySuperClass = rootClass;
-			if (ClassUtils.isCglibProxyClass(rootClass)) {
-				proxySuperClass = rootClass.getSuperclass();
-				Class<?>[] additionalInterfaces = rootClass.getInterfaces();
+			if (ClassUtils.isCglibProxyClass(rootClass)) {  //判断是否为cglib生成的类
+				proxySuperClass = rootClass.getSuperclass();  //原生类为cglib类的父类
+				Class<?>[] additionalInterfaces = rootClass.getInterfaces(); //获取接口
 				for (Class<?> additionalInterface : additionalInterfaces) {
 					this.advised.addInterface(additionalInterface);
 				}
@@ -186,7 +186,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 			}
 			enhancer.setSuperclass(proxySuperClass);
 			enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(this.advised));
-			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
+			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);  //命名规则
 			enhancer.setStrategy(new ClassLoaderAwareUndeclaredThrowableStrategy(classLoader));
 
 			Callback[] callbacks = getCallbacks(rootClass);
@@ -273,7 +273,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 					}
 				}
 			}
-			doValidateClass(proxySuperClass.getSuperclass(), proxyClassLoader);
+			doValidateClass(proxySuperClass.getSuperclass(), proxyClassLoader);  //递归调用验证父类
 		}
 	}
 
@@ -284,7 +284,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		boolean isStatic = this.advised.getTargetSource().isStatic();
 
 		// Choose an "aop" interceptor (used for AOP calls).
-		Callback aopInterceptor = new DynamicAdvisedInterceptor(this.advised);
+		Callback aopInterceptor = new DynamicAdvisedInterceptor(this.advised);  //aop核心调用
 
 		// Choose a "straight to target" interceptor. (used for calls that are
 		// unadvised but can return this). May be required to expose the proxy.
@@ -638,7 +638,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 				if (target != null) {
 					targetClass = target.getClass();
 				}
-				List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
+				List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);  //获取advice
 				Object retVal;
 				// Check whether we only have one InvokerInterceptor: that is,
 				// no real advice, but just reflective invocation of the target.
@@ -652,7 +652,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 				}
 				else {
 					// We need to create a method invocation...
-					retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();
+					retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();  //调用
 				}
 				retVal = processReturnType(proxy, target, method, retVal);
 				return retVal;

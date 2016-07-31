@@ -146,7 +146,7 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 	 * Increase the reference count by one because the holder has been requested
 	 * (i.e. someone requested the resource held by it).
 	 */
-	public void requested() {
+	public void requested() {  //增加引用数目
 		this.referenceCount++;
 	}
 

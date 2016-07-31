@@ -135,6 +135,15 @@ public class AnnotationConfigUtils {
 	}
 
 	/**
+     *
+     * 注册后处理器
+     * CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME ConfigurationClassPostProcessor
+       AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME AutowiredAnnotationBeanPostProcessor
+       REQUIRED_ANNOTATION_PROCESSOR_BEAN_NAME RequiredAnnotationBeanPostProcessor
+       COMMON_ANNOTATION_PROCESSOR_BEAN_NAME CommonAnnotationBeanPostProcessor
+       PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME PersistenceAnnotationBeanPostProcessor
+       EVENT_LISTENER_PROCESSOR_BEAN_NAME EventListenerMethodProcessor
+       EVENT_LISTENER_FACTORY_BEAN_NAME  DefaultEventListenerFactory
 	 * Register all relevant annotation post processors in the given registry.
 	 * @param registry the registry to operate on
 	 * @param source the configuration source element (already extracted)
@@ -145,13 +154,13 @@ public class AnnotationConfigUtils {
 	public static Set<BeanDefinitionHolder> registerAnnotationConfigProcessors(
 			BeanDefinitionRegistry registry, Object source) {
 
-		DefaultListableBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);
+		DefaultListableBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);  // 拿到DefaultListableBeanFactory
 		if (beanFactory != null) {
 			if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
-				beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+				beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);  //比较器
 			}
 			if (!(beanFactory.getAutowireCandidateResolver() instanceof ContextAnnotationAutowireCandidateResolver)) {
-				beanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
+				beanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver()); //Autowire解析者
 			}
 		}
 
@@ -211,6 +220,13 @@ public class AnnotationConfigUtils {
 		return beanDefs;
 	}
 
+	/**
+	 * 添加BeanDefinition注册的后处理器 BeanDefinitionRegistryPostProcessor
+	 * @param registry
+	 * @param definition
+	 * @param beanName
+	 * @return
+	 */
 	private static BeanDefinitionHolder registerPostProcessor(
 			BeanDefinitionRegistry registry, RootBeanDefinition definition, String beanName) {
 
@@ -220,7 +236,7 @@ public class AnnotationConfigUtils {
 	}
 
 	private static DefaultListableBeanFactory unwrapDefaultListableBeanFactory(BeanDefinitionRegistry registry) {
-		if (registry instanceof DefaultListableBeanFactory) {
+		if (registry instanceof DefaultListableBeanFactory) { //执行该步骤
 			return (DefaultListableBeanFactory) registry;
 		}
 		else if (registry instanceof GenericApplicationContext) {

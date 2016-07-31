@@ -107,6 +107,8 @@ public abstract class HttpServletBean extends HttpServlet
 	}
 
 	/**
+	 *
+	 * servlet的初始化方法
 	 * Map config parameters onto bean properties of this servlet, and
 	 * invoke subclass initialization.
 	 * @throws ServletException if bean properties are invalid (or required
@@ -222,6 +224,8 @@ public abstract class HttpServletBean extends HttpServlet
 	private static class ServletConfigPropertyValues extends MutablePropertyValues {
 
 		/**
+         *
+         * 获取ServletConfig对应信息
 		 * Create new ServletConfigPropertyValues.
 		 * @param config ServletConfig we'll use to take PropertyValues from
 		 * @param requiredProperties set of property names we need, where

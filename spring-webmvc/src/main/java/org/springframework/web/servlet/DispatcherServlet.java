@@ -477,14 +477,16 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 *
+	 * 初始化若干组件
 	 * Initialize the strategy objects that this servlet uses.
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
-		initMultipartResolver(context);
-		initLocaleResolver(context);
-		initThemeResolver(context);
-		initHandlerMappings(context);
+		initMultipartResolver(context); //福建解析器
+		initLocaleResolver(context);  //国际化
+		initThemeResolver(context);  //主题
+		initHandlerMappings(context);  //url 映射处理
 		initHandlerAdapters(context);
 		initHandlerExceptionResolvers(context);
 		initRequestToViewNameTranslator(context);
@@ -855,6 +857,8 @@ public class DispatcherServlet extends FrameworkServlet {
 
 
 	/**
+     *
+     * 入口
 	 * Exposes the DispatcherServlet-specific request attributes and delegates to {@link #doDispatch}
 	 * for the actual dispatching.
 	 */
@@ -933,7 +937,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				multipartRequestParsed = (processedRequest != request);
 
 				// Determine handler for the current request.
-				mappedHandler = getHandler(processedRequest);
+				mappedHandler = getHandler(processedRequest);  //
 				if (mappedHandler == null || mappedHandler.getHandler() == null) {
 					noHandlerFound(processedRequest, response);
 					return;
@@ -970,8 +974,8 @@ public class DispatcherServlet extends FrameworkServlet {
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
-				dispatchException = ex;
-			}
+                dispatchException = ex;
+            }
 			catch (Throwable err) {
 				// As of 4.3, we're processing Errors thrown from handler methods as well,
 				// making them available for @ExceptionHandler methods and other scenarios.

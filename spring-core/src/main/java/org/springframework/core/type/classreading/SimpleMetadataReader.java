@@ -47,7 +47,7 @@ final class SimpleMetadataReader implements MetadataReader {
 
 
 	SimpleMetadataReader(Resource resource, ClassLoader classLoader) throws IOException {
-		InputStream is = new BufferedInputStream(resource.getInputStream());
+		InputStream is = new BufferedInputStream(resource.getInputStream());  //获取输入流
 		ClassReader classReader;
 		try {
 			classReader = new ClassReader(is);  //使用asm处理扫描的Class文件
@@ -60,7 +60,7 @@ final class SimpleMetadataReader implements MetadataReader {
 			is.close();
 		}
 
-		AnnotationMetadataReadingVisitor visitor = new AnnotationMetadataReadingVisitor(classLoader);
+		AnnotationMetadataReadingVisitor visitor = new AnnotationMetadataReadingVisitor(classLoader);  //解析class字节码文件中的注解信息，class信息
 		classReader.accept(visitor, ClassReader.SKIP_DEBUG);
 
 		this.annotationMetadata = visitor;

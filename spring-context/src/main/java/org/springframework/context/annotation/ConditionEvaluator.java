@@ -49,11 +49,13 @@ class ConditionEvaluator {
 	 * Create a new {@link ConditionEvaluator} instance.
 	 */
 	public ConditionEvaluator(BeanDefinitionRegistry registry, Environment environment, ResourceLoader resourceLoader) {
-		this.context = new ConditionContextImpl(registry, environment, resourceLoader);
+		this.context = new ConditionContextImpl(registry, environment, resourceLoader);  //构造ConditionContextImpl，用来解析Conditional注解
 	}
 
 
 	/**
+	 *
+	 * Conditional注解实现原理
 	 * Determine if an item should be skipped based on {@code @Conditional} annotations.
 	 * The {@link ConfigurationPhase} will be deduced from the type of item (i.e. a
 	 * {@code @Configuration} class will be {@link ConfigurationPhase#PARSE_CONFIGURATION})
@@ -71,14 +73,14 @@ class ConditionEvaluator {
 	 * @return if the item should be skipped
 	 */
 	public boolean shouldSkip(AnnotatedTypeMetadata metadata, ConfigurationPhase phase) {
-		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
+		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) { //判断是否包含Conditional注解
 			return false;
 		}
 
 		if (phase == null) {
 			if (metadata instanceof AnnotationMetadata &&
 					ConfigurationClassUtils.isConfigurationCandidate((AnnotationMetadata) metadata)) {
-				return shouldSkip(metadata, ConfigurationPhase.PARSE_CONFIGURATION);
+				return shouldSkip(metadata, ConfigurationPhase.PARSE_CONFIGURATION);  //解析
 			}
 			return shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN);
 		}
@@ -86,7 +88,7 @@ class ConditionEvaluator {
 		List<Condition> conditions = new ArrayList<Condition>();
 		for (String[] conditionClasses : getConditionClasses(metadata)) {
 			for (String conditionClass : conditionClasses) {
-				Condition condition = getCondition(conditionClass, this.context.getClassLoader());
+				Condition condition = getCondition(conditionClass, this.context.getClassLoader());  //获得Condition实现类
 				conditions.add(condition);
 			}
 		}

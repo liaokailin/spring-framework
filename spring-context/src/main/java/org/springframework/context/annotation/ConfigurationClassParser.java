@@ -164,13 +164,13 @@ class ConfigurationClassParser {
 
 
 	public void parse(Set<BeanDefinitionHolder> configCandidates) {
-		this.deferredImportSelectors = new LinkedList<DeferredImportSelectorHolder>();
+		this.deferredImportSelectors = new LinkedList<DeferredImportSelectorHolder>();  //延迟的ImportSelector
 
 		for (BeanDefinitionHolder holder : configCandidates) {
 			BeanDefinition bd = holder.getBeanDefinition();
 			try {
 				if (bd instanceof AnnotatedBeanDefinition) {
-					parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());
+					parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());  //执行该步骤
 				}
 				else if (bd instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) bd).hasBeanClass()) {
 					parse(((AbstractBeanDefinition) bd).getBeanClass(), holder.getBeanName());
@@ -188,7 +188,7 @@ class ConfigurationClassParser {
 			}
 		}
 
-		processDeferredImportSelectors();
+		processDeferredImportSelectors();  //处理延迟的ImportSelector
 	}
 
 	protected final void parse(String className, String beanName) throws IOException {
@@ -206,6 +206,7 @@ class ConfigurationClassParser {
 
 
 	protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
+		//判断Conditional
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
@@ -242,6 +243,8 @@ class ConfigurationClassParser {
 	}
 
 	/**
+     *
+     * 解析ConfigurationClass ，解析的结果都存储在ConfigurationClass自身属性上或者ConfigurationClassParser上
 	 * Apply processing and build a complete {@link ConfigurationClass} by reading the
 	 * annotations, members and methods from the source class. This method can be called
 	 * multiple times as relevant sources are discovered.
@@ -251,8 +254,11 @@ class ConfigurationClassParser {
 	 */
 	protected final SourceClass doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass) throws IOException {
 		// Recursively process any member (nested) classes first
-		processMemberClasses(configClass, sourceClass);
+		processMemberClasses(configClass, sourceClass);  //递归处理内部成员
 
+		/**
+		 * 将PropertySource 注解对应位置的配置信息加载到Enviroment中
+		 */
 		// Process any @PropertySource annotations
 		for (AnnotationAttributes propertySource : AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), PropertySources.class, org.springframework.context.annotation.PropertySource.class)) {
@@ -272,11 +278,12 @@ class ConfigurationClassParser {
 			for (AnnotationAttributes componentScan : componentScans) {
 				// The config class is annotated with @ComponentScan -> perform the scan immediately
 				Set<BeanDefinitionHolder> scannedBeanDefinitions =
-						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
+						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());  //ComponentScan注解去扫描bean信息
 				// Check the set of scanned definitions for any further config classes and parse recursively if necessary
 				for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
+                    //判断BeanDefinition信息是否存在注解Component ComponentScan Import ImportResource Bean Configuration
 					if (ConfigurationClassUtils.checkConfigurationClassCandidate(holder.getBeanDefinition(), this.metadataReaderFactory)) {
-						parse(holder.getBeanDefinition().getBeanClassName(), holder.getBeanName());
+						parse(holder.getBeanDefinition().getBeanClassName(), holder.getBeanName());  //解析扫描到的BeanDefinition信息
 					}
 				}
 			}
@@ -469,16 +476,19 @@ class ConfigurationClassParser {
 		}
 	}
 
+    /**
+     * 处理延迟的ImportSelector
+     */
 	private void processDeferredImportSelectors() {
 		List<DeferredImportSelectorHolder> deferredImports = this.deferredImportSelectors;
 		this.deferredImportSelectors = null;
-		Collections.sort(deferredImports, DEFERRED_IMPORT_COMPARATOR);
+        Collections.sort(deferredImports, DEFERRED_IMPORT_COMPARATOR);
 
 		for (DeferredImportSelectorHolder deferredImport : deferredImports) {
 			ConfigurationClass configClass = deferredImport.getConfigurationClass();
 			try {
-				String[] imports = deferredImport.getImportSelector().selectImports(configClass.getMetadata());
-				processImports(configClass, asSourceClass(configClass), asSourceClasses(imports), false);
+				String[] imports = deferredImport.getImportSelector().selectImports(configClass.getMetadata());  //设置注解元数据
+				processImports(configClass, asSourceClass(configClass), asSourceClasses(imports), false);  //继续解析申明的Class对应的import信息，直到最终解析bean信息
 			}
 			catch (BeanDefinitionStoreException ex) {
 				throw ex;
@@ -508,15 +518,15 @@ class ConfigurationClassParser {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						Class<?> candidateClass = candidate.loadClass();
 						ImportSelector selector = BeanUtils.instantiateClass(candidateClass, ImportSelector.class);
-						invokeAwareMethods(selector);
+						invokeAwareMethods(selector);  //处理aware信息
 						if (this.deferredImportSelectors != null && selector instanceof DeferredImportSelector) {
 							this.deferredImportSelectors.add(
 									new DeferredImportSelectorHolder(configClass, (DeferredImportSelector) selector));
 						}
 						else {
-							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
+							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());  //获得ClassName
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames);
-							processImports(configClass, currentSourceClass, importSourceClasses, false);
+							processImports(configClass, currentSourceClass, importSourceClasses, false);//解析对应的Class
 						}
 					}
 					else if (candidate.isAssignable(ImportBeanDefinitionRegistrar.class)) {

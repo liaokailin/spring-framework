@@ -695,6 +695,8 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 *
+	 * 递归调用
 	 * Perform the search algorithm for {@link #findAnnotation(Class, Class)},
 	 * avoiding endless recursion by tracking which annotations have already
 	 * been <em>visited</em>.

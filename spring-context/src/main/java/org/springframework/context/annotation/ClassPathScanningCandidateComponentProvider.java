@@ -130,7 +130,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 */
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
-		this.resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(resourceLoader);
+		this.resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(resourceLoader);    //PathMatchingResourcePatternResolver
 		this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
 	}
 
@@ -233,10 +233,12 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * <p>Also supports Java EE 6's {@link javax.annotation.ManagedBean} and
 	 * JSR-330's {@link javax.inject.Named} annotations, if available.
 	 *
+	 * 添加默认的filters
+	 *
 	 */
 	@SuppressWarnings("unchecked")
 	protected void registerDefaultFilters() {
-		this.includeFilters.add(new AnnotationTypeFilter(Component.class));
+		this.includeFilters.add(new AnnotationTypeFilter(Component.class));  //Repository Controller都是基于Component
 		ClassLoader cl = ClassPathScanningCandidateComponentProvider.class.getClassLoader();
 		try {
 			this.includeFilters.add(new AnnotationTypeFilter(
@@ -258,6 +260,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 
 
 	/**
+     * 通过path定位Class 获取Resource，通过ASM处理Class字节码 获得BeanDefinition
 	 * Scan the class path for candidate components.
 	 * @param basePackage the package to check for annotated classes
 	 * @return a corresponding Set of autodetected bean definitions
@@ -266,8 +269,8 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 		Set<BeanDefinition> candidates = new LinkedHashSet<BeanDefinition>();
 		try {
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
-					resolveBasePackage(basePackage) + "/" + this.resourcePattern;  //查找*.class
-			Resource[] resources = this.resourcePatternResolver.getResources(packageSearchPath);
+					resolveBasePackage(basePackage) + "/" + this.resourcePattern;  //查找 classpath: *.class
+			Resource[] resources = this.resourcePatternResolver.getResources(packageSearchPath);  //按照位置获取Resource
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
 			for (Resource resource : resources) {
@@ -276,17 +279,17 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				}
 				if (resource.isReadable()) {
 					try {
-						MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);
+						MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);  //使用asm处理Class文件
 						if (isCandidateComponent(metadataReader)) {
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setResource(resource);
 							sbd.setSource(resource);
 							if (isCandidateComponent(sbd)) {
-								if (debugEnabled) {
-									logger.debug("Identified candidate component class: " + resource);
-								}
-								candidates.add(sbd);
-							}
+                                if (debugEnabled) {
+                                    logger.debug("Identified candidate component class: " + resource);
+                                }
+                                candidates.add(sbd);
+                            }
 							else {
 								if (debugEnabled) {
 									logger.debug("Ignored because not a concrete top-level class: " + resource);
@@ -342,7 +345,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				return false;
 			}
 		}
-		for (TypeFilter tf : this.includeFilters) {
+		for (TypeFilter tf : this.includeFilters) {   //component
 			if (tf.match(metadataReader, this.metadataReaderFactory)) {
 				return isConditionMatch(metadataReader);
 			}

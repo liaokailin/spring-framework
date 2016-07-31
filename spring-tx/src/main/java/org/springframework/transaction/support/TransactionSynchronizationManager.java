@@ -127,6 +127,8 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 *
+	 * 从ThreadLocal中按照指定key获取value
 	 * Retrieve a resource for the given key that is bound to the current thread.
 	 * @param key the key to check (usually the resource factory)
 	 * @return a value bound to the current thread (usually the active
@@ -147,13 +149,13 @@ public abstract class TransactionSynchronizationManager {
 	 * Actually check the value of the resource that is bound for the given key.
 	 */
 	private static Object doGetResource(Object actualKey) {
-		Map<Object, Object> map = resources.get();
+		Map<Object, Object> map = resources.get();  //从TheadLocal获取
 		if (map == null) {
 			return null;
 		}
 		Object value = map.get(actualKey);
 		// Transparently remove ResourceHolder that was marked as void...
-		if (value instanceof ResourceHolder && ((ResourceHolder) value).isVoid()) {
+		if (value instanceof ResourceHolder && ((ResourceHolder) value).isVoid()) {  //如果无效的话则显示删除
 			map.remove(actualKey);
 			// Remove entire ThreadLocal if empty...
 			if (map.isEmpty()) {

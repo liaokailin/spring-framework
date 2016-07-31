@@ -56,6 +56,8 @@ class PostProcessorRegistrationDelegate {
 
 	/**
 	 * 执行BeanFactoryPostProcessor，默认不手工addBeanFactoryPostProcessor的话，beanFactoryPostProcessors为空
+	 *
+	 * 注解对应处理类 ConfigurationClassPostProcessor
 	 * @param beanFactory
 	 * @param beanFactoryPostProcessors
 	 */

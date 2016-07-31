@@ -41,6 +41,7 @@ class CommandLineArgs {
 	 * list of values associated with this option (of which there may be zero or more).
 	 * The given value may be {@code null}, indicating that the option was specified
 	 * without an associated value (e.g. "--foo" vs. "--foo=bar").
+	 * 第一次添加则先构造list，然后将value添加到list中
 	 */
 	public void addOptionArg(String optionName, String optionValue) {
 		if (!this.optionArgs.containsKey(optionName)) {

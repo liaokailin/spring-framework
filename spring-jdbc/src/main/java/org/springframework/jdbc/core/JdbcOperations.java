@@ -26,6 +26,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 /**
+ *
+ * crud操作相关
  * Interface specifying a basic set of JDBC operations.
  * Implemented by {@link JdbcTemplate}. Not often used directly, but a useful
  * option to enhance testability, as it can easily be mocked or stubbed.

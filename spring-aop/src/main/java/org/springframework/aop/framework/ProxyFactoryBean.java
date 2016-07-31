@@ -100,7 +100,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private String[] interceptorNames;
+	private String[] interceptorNames;  //拦截器名集 指定advisor集合
 
 	private String targetName;
 
@@ -233,6 +233,8 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 
 
 	/**
+	 *
+	 * 返回代理对象
 	 * Return a proxy. Invoked when clients obtain beans from this factory bean.
 	 * Create an instance of the AOP proxy to be returned by this factory.
 	 * The instance will be cached for a singleton, and create on each call to
@@ -308,7 +310,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 */
 	private synchronized Object getSingletonInstance() {
 		if (this.singletonInstance == null) {
-			this.targetSource = freshTargetSource();
+			this.targetSource = freshTargetSource();  //获取目标对象
 			if (this.autodetectInterfaces && getProxiedInterfaces().length == 0 && !isProxyTargetClass()) {
 				// Rely on AOP infrastructure to tell us what interfaces to proxy.
 				Class<?> targetClass = getTargetClass();
@@ -510,9 +512,9 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 */
 	private void addGlobalAdvisor(ListableBeanFactory beanFactory, String prefix) {
 		String[] globalAdvisorNames =
-				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Advisor.class);
+				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Advisor.class);  //通知器
 		String[] globalInterceptorNames =
-				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Interceptor.class);
+				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Interceptor.class);  //拦截器
 		List<Object> beans = new ArrayList<Object>(globalAdvisorNames.length + globalInterceptorNames.length);
 		Map<Object, String> names = new HashMap<Object, String>(beans.size());
 		for (String name : globalAdvisorNames) {
@@ -528,7 +530,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 		AnnotationAwareOrderComparator.sort(beans);
 		for (Object bean : beans) {
 			String name = names.get(bean);
-			if (name.startsWith(prefix)) {
+			if (name.startsWith(prefix)) {  //匹配名称
 				addAdvisorOnChainCreation(bean, name);
 			}
 		}
@@ -564,9 +566,9 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 			if (logger.isTraceEnabled()) {
 				logger.trace("Not refreshing target: Bean name not specified in 'interceptorNames'.");
 			}
-			return this.targetSource;
+			return this.targetSource; //设置target属性 则会构建targetSource对象 new SingletonTargetSource(target)
 		}
-		else {
+		else {  //如果设置targetName 则从BeanFactory中获取对应bean信息
 			if (this.beanFactory == null) {
 				throw new IllegalStateException("No BeanFactory available anymore (probably due to serialization) " +
 						"- cannot resolve target with name '" + this.targetName + "'");

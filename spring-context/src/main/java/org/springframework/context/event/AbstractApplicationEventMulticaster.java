@@ -163,9 +163,9 @@ public abstract class AbstractApplicationEventMulticaster
 	protected Collection<ApplicationListener<?>> getApplicationListeners(
 			ApplicationEvent event, ResolvableType eventType) {
 
-		Object source = event.getSource();
+		Object source = event.getSource();  //针对Spring Boot为SpringApplication
 		Class<?> sourceType = (source != null ? source.getClass() : null);
-		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
+		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);  //包裹eventType, sourceType 用做缓存key
 
 		// Quick check for existing entry on ConcurrentHashMap...
 		ListenerRetriever retriever = this.retrieverCache.get(cacheKey);  //缓存
@@ -184,7 +184,7 @@ public abstract class AbstractApplicationEventMulticaster
 				}
 				retriever = new ListenerRetriever(true);
 				Collection<ApplicationListener<?>> listeners =
-						retrieveApplicationListeners(eventType, sourceType, retriever);
+						retrieveApplicationListeners(eventType, sourceType, retriever);  //解析
 				this.retrieverCache.put(cacheKey, retriever);
 				return listeners;
 			}
@@ -198,7 +198,7 @@ public abstract class AbstractApplicationEventMulticaster
 	/**
 	 * Actually retrieve the application listeners for the given event and source type.
 	 * @param eventType the event type
-	 * @param sourceType the event source type
+	 * @param sourceType the event source type //事件源类型
 	 * @param retriever the ListenerRetriever, if supposed to populate one (for caching purposes)
 	 * @return the pre-filtered list of application listeners for the given event and source type
 	 */
@@ -212,7 +212,7 @@ public abstract class AbstractApplicationEventMulticaster
 			listeners = new LinkedHashSet<ApplicationListener<?>>(this.defaultRetriever.applicationListeners);
 			listenerBeans = new LinkedHashSet<String>(this.defaultRetriever.applicationListenerBeans);
 		}
-		for (ApplicationListener<?> listener : listeners) {
+		for (ApplicationListener<?> listener : listeners) {   //遍历所有的监听器，看其泛型是否支持该事件 核心方法supportsEvent
 			if (supportsEvent(listener, eventType, sourceType)) {
 				if (retriever != null) {
 					retriever.applicationListeners.add(listener);
@@ -279,6 +279,9 @@ public abstract class AbstractApplicationEventMulticaster
 	 * for the given event type
 	 */
 	protected boolean supportsEvent(ApplicationListener<?> listener, ResolvableType eventType, Class<?> sourceType) {
+		/**
+		 * new GenericApplicationListenerAdapter(listener)
+		 */
 		GenericApplicationListener smartListener = (listener instanceof GenericApplicationListener ?
 				(GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener));
 		return (smartListener.supportsEventType(eventType) && smartListener.supportsSourceType(sourceType));

@@ -65,8 +65,8 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
 	 */
 	public StandardAnnotationMetadata(Class<?> introspectedClass, boolean nestedAnnotationsAsMap) {
 		super(introspectedClass);
-		this.annotations = introspectedClass.getAnnotations();
-		this.nestedAnnotationsAsMap = nestedAnnotationsAsMap;
+		this.annotations = introspectedClass.getAnnotations();  //所有的注解
+		this.nestedAnnotationsAsMap = nestedAnnotationsAsMap;  //嵌套注解转换为map形式
 	}
 
 
@@ -123,17 +123,29 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
 		return getAllAnnotationAttributes(annotationName, false);
 	}
 
+    /**
+     * 获取指定注解属性信息
+     * @param annotationName
+     * @param classValuesAsString
+     * @return
+     */
 	@Override
 	public MultiValueMap<String, Object> getAllAnnotationAttributes(String annotationName, boolean classValuesAsString) {
 		return (this.annotations.length > 0 ? AnnotatedElementUtils.getAllAnnotationAttributes(
 				getIntrospectedClass(), annotationName, classValuesAsString, this.nestedAnnotationsAsMap) : null);
 	}
 
+	/**
+	 * 判断方法是否包含特定的注解
+	 * @param annotationName
+	 * @return
+	 */
 	@Override
 	public boolean hasAnnotatedMethods(String annotationName) {
 		try {
-			Method[] methods = getIntrospectedClass().getDeclaredMethods();
+			Method[] methods = getIntrospectedClass().getDeclaredMethods();  //获取申明的所有方法，不包括父类方法
 			for (Method method : methods) {
+				//桥接方法由编译器生成，为了在jdk向前兼容使用(泛型等)
 				if (!method.isBridge() && method.getAnnotations().length > 0 &&
 						AnnotatedElementUtils.isAnnotated(method, annotationName)) {
 					return true;

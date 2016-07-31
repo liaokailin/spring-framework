@@ -127,20 +127,20 @@ class ConfigurationClassBeanDefinitionReader {
 		if (trackedConditionEvaluator.shouldSkip(configClass)) {
 			String beanName = configClass.getBeanName();
 			if (StringUtils.hasLength(beanName) && this.registry.containsBeanDefinition(beanName)) {
-				this.registry.removeBeanDefinition(beanName);
+				this.registry.removeBeanDefinition(beanName); //清楚旧信息
 			}
 			this.importRegistry.removeImportingClassFor(configClass.getMetadata().getClassName());
 			return;
 		}
 
-		if (configClass.isImported()) {
+		if (configClass.isImported()) {  //判断是否存在Import注解
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
-		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
+		for (BeanMethod beanMethod : configClass.getBeanMethods()) {  //解析@Bean对应的方法，注册对应BeanDefinition
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
-		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
-		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
+		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());  //ImportedResource
+		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars()); //ImportBeanDefinitionRegistrar
 	}
 
 	/**
@@ -174,6 +174,7 @@ class ConfigurationClassBeanDefinitionReader {
 		MethodMetadata metadata = beanMethod.getMetadata();
 		String methodName = metadata.getMethodName();
 
+		//method上也可以使用Conditional
 		// Do we need to mark the bean as skipped by its condition?
 		if (this.conditionEvaluator.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
 			configClass.skippedBeanMethods.add(methodName);
@@ -186,7 +187,7 @@ class ConfigurationClassBeanDefinitionReader {
 		// Consider name and any aliases
 		AnnotationAttributes bean = AnnotationConfigUtils.attributesFor(metadata, Bean.class);
 		List<String> names = new ArrayList<String>(Arrays.asList(bean.getStringArray("name")));
-		String beanName = (names.size() > 0 ? names.remove(0) : methodName);
+		String beanName = (names.size() > 0 ? names.remove(0) : methodName);  //取第一个为beanName，其他为别名
 
 		// Register aliases even when overridden
 		for (String alias : names) {
@@ -204,7 +205,7 @@ class ConfigurationClassBeanDefinitionReader {
 
 		if (metadata.isStatic()) {
 			// static @Bean method
-			beanDef.setBeanClassName(configClass.getMetadata().getClassName());
+			beanDef.setBeanClassName(configClass.getMetadata().getClassName());  //方法名为beanName
 			beanDef.setFactoryMethodName(methodName);
 		}
 		else {
@@ -212,7 +213,7 @@ class ConfigurationClassBeanDefinitionReader {
 			beanDef.setFactoryBeanName(configClass.getBeanName());
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}
-		beanDef.setAutowireMode(RootBeanDefinition.AUTOWIRE_CONSTRUCTOR);
+		beanDef.setAutowireMode(RootBeanDefinition.AUTOWIRE_CONSTRUCTOR);  //注入模式
 		beanDef.setAttribute(RequiredAnnotationBeanPostProcessor.SKIP_REQUIRED_CHECK_ATTRIBUTE, Boolean.TRUE);
 
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef, metadata);
