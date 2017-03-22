@@ -1,3 +1,5 @@
+## Read resource code 
+
 ## Spring Framework
 The Spring Framework provides a comprehensive programming and configuration
 model for modern Java-based enterprise applications -- on any kind of deployment
@@ -6,7 +8,6 @@ level: Spring focuses on the "plumbing" of enterprise applications so that teams
 can focus on application-level business logic, without unnecessary ties to
 specific deployment environments.
 
-lkl 
 
 The framework also serves as the foundation for [Spring Integration][], [Spring Batch][]
 and the rest of the Spring [family of projects][]. Browse the repositories under
